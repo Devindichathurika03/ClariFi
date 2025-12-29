@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Lightbulb, Copy, Check } from 'lucide-react';
+import { useState } from "react";
+import { Lightbulb, Copy, Check } from "lucide-react";
 
-type Context = 'Career' | 'Study' | 'Personal' | 'Project';
+type Context = "Career" | "Study" | "Personal" | "Project";
 
 interface Analysis {
   reality: string;
@@ -10,36 +10,43 @@ interface Analysis {
 }
 
 export default function Home() {
-  const [situation, setSituation] = useState('');
-  const [context, setContext] = useState<Context>('Personal');
+  const [situation, setSituation] = useState("");
+  const [context, setContext] = useState<Context>("Personal");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
 
-  const generateAnalysis = () => {
+  // 🔹 API CALL
+  const generateAnalysis = async () => {
     if (!situation.trim()) return;
 
-    const analysis: Analysis = {
-      reality: `You are facing a ${context.toLowerCase()}-related decision regarding ${situation.slice(
-        0,
-        50
-      )}${situation.length > 50 ? '...' : ''}. This situation requires a structured approach to evaluate your options objectively and move forward with confidence.`,
-      variables: [
-        'Time constraints and available resources',
-        'Short-term vs. long-term implications',
-        'Risk tolerance and potential consequences',
-        'Alignment with your core values and goals',
-        'External dependencies and stakeholder impact',
-      ],
-      nextStep:
-        'Write down the specific outcome you want to achieve in the next 7 days, then identify the single smallest action you can take today to move toward that outcome. Set a 2-hour block in your calendar this week to execute it.',
-    };
+    setError("");
+    setLoading(true);
+    setAnalysis(null);
 
-    setAnalysis(analysis);
+    try {
+      const res = await fetch("http://localhost:5000/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situation, context }),
+      });
+
+      if (!res.ok) throw new Error("Failed to analyze");
+
+      const data: Analysis = await res.json();
+      setAnalysis(data);
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // 🔹 COPY HANDLER
   const handleCopy = async () => {
     if (!analysis) return;
-
     const text = `
 ClariFi Analysis
 
@@ -47,7 +54,7 @@ Reality Summary:
 ${analysis.reality}
 
 Key Variables:
-${analysis.variables.map((v, i) => `${i + 1}. ${v}`).join('\n')}
+${analysis.variables.map((v, i) => `${i + 1}. ${v}`).join("\n")}
 
 Suggested Next Step:
 ${analysis.nextStep}
@@ -58,52 +65,61 @@ ${analysis.nextStep}
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // 🔹 RESET
   const handleReset = () => {
-    setSituation('');
+    setSituation("");
     setAnalysis(null);
+    setError("");
     setCopied(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+
+        {/* HEADER */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Lightbulb className="w-8 h-8 text-blue-600" />
-            <h1 className="text-blue-600 text-2xl font-bold">ClariFi</h1>
+            <h1 className="text-2xl font-bold text-blue-600">ClariFi</h1>
           </div>
-          <p className="text-slate-600">Turn confusion into clarity. Get actionable decisions.</p>
+          <p className="text-slate-600">
+            Turn confusion into clarity. Get actionable decisions.
+          </p>
         </div>
 
-        {/* Input Section */}
-        <div className="p-6 mb-6 shadow-lg bg-white rounded-lg space-y-4">
-          {/* Textarea */}
+        {/* INPUT CARD */}
+        <div className="bg-white p-6 rounded-lg shadow-lg space-y-4">
+
+          {/* ERROR MESSAGE */}
+          {error && <p className="text-red-600 font-semibold">{error}</p>}
+
+          {/* TEXTAREA */}
           <div>
             <label className="block mb-2 text-slate-700">What's on your mind?</label>
             <textarea
               value={situation}
               onChange={(e) => setSituation(e.target.value)}
               placeholder="Describe your situation, dilemma, or what you're overthinking..."
-              className="w-full min-h-[100px] p-3 border rounded-md bg-white text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-teal-500 outline-none resize-none"
-              disabled={!!analysis}
+              className="w-full min-h-[100px] p-3 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              disabled={loading || !!analysis}
             />
           </div>
 
-          {/* Context Buttons */}
+          {/* CONTEXT */}
           <div>
             <label className="block mb-3 text-slate-700">Context</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {(['Career', 'Study', 'Personal', 'Project'] as const).map((ctx) => (
+              {(["Career", "Study", "Personal", "Project"] as const).map((ctx) => (
                 <button
                   key={ctx}
                   onClick={() => setContext(ctx)}
-                  disabled={!!analysis}
+                  disabled={loading || !!analysis}
                   className={`px-4 py-2 rounded-lg border-2 transition-all ${
                     context === ctx
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      ? "border-blue-600 bg-blue-50 text-blue-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  } disabled:opacity-50`}
                 >
                   {ctx}
                 </button>
@@ -111,22 +127,22 @@ ${analysis.nextStep}
             </div>
           </div>
 
-          {/* Get Clarity / Reset Button */}
+          {/* ACTION BUTTON */}
           {!analysis ? (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center pt-4">
               <button
                 onClick={generateAnalysis}
-                disabled={!situation.trim()}
-                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                disabled={loading || !situation.trim()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                Get Clarity
+                {loading ? "Analyzing..." : "Get Clarity"}
               </button>
             </div>
           ) : (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center pt-4">
               <button
                 onClick={handleReset}
-                className="w-full sm:w-auto px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                className="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
               >
                 Analyze Another Situation
               </button>
@@ -134,62 +150,43 @@ ${analysis.nextStep}
           )}
         </div>
 
-        {/* Analysis Output */}
+        {/* OUTPUT */}
         {analysis && (
-          <div className="p-6 shadow-lg bg-white rounded-lg mt-6 space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-slate-800">Your Clarity Report</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg mt-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-slate-800">Your Clarity Report</h2>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-2 border border-gray-300 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-2 border px-3 py-1 rounded hover:bg-gray-100"
               >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copy
-                  </>
-                )}
+                {copied ? <><Check className="w-4 h-4" /> Copied</> : <><Copy className="w-4 h-4" /> Copy</>}
               </button>
             </div>
 
-            {/* Reality Summary */}
+            {/* REALITY */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
-                <h3 className="text-slate-800">Reality Summary</h3>
-              </div>
-              <p className="text-slate-600 leading-relaxed pl-4">{analysis.reality}</p>
+              <h3 className="font-semibold text-slate-800 mb-2">Reality Summary</h3>
+              <p className="text-slate-600">{analysis.reality}</p>
             </div>
 
-            {/* Key Variables */}
+            {/* VARIABLES */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
-                <h3 className="text-slate-800">Key Variables</h3>
-              </div>
-              <ul className="space-y-2 pl-4">
-                {analysis.variables.map((variable, index) => (
-                  <li key={index} className="flex gap-3">
-                    <span className="text-blue-600 font-semibold">{index + 1}.</span>
-                    <span className="text-slate-600">{variable}</span>
+              <h3 className="font-semibold text-slate-800 mb-2">Key Variables</h3>
+              <ul className="space-y-2">
+                {analysis.variables.map((v, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-blue-600 font-semibold">{i + 1}.</span>
+                    <span className="text-slate-600">{v}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Suggested Next Step */}
+            {/* NEXT STEP */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
-                <h3 className="text-slate-800">Suggested Next Step</h3>
-              </div>
-              <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r">
-                <p className="text-slate-700 leading-relaxed">{analysis.nextStep}</p>
+              <h3 className="font-semibold text-slate-800 mb-2">Suggested Next Step</h3>
+              <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
+                <p className="text-slate-700">{analysis.nextStep}</p>
               </div>
             </div>
           </div>

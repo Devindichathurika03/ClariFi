@@ -17,7 +17,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 API CALL
+  // API CALL
   const generateAnalysis = async () => {
     if (!situation.trim()) return;
 
@@ -44,7 +44,7 @@ export default function Home() {
     }
   };
 
-  // 🔹 COPY HANDLER
+  //  COPY HANDLER
   const handleCopy = async () => {
     if (!analysis) return;
     const text = `
@@ -65,7 +65,7 @@ ${analysis.nextStep}
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 🔹 RESET
+  // RESET
   const handleReset = () => {
     setSituation("");
     setAnalysis(null);

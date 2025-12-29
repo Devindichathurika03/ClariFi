@@ -1,79 +1,95 @@
-<<<<<<< HEAD
 # ClariFi
-AI tool that helps users turn confusion or overthinking into clear, actionable decisions.
-=======
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**ClariFi** is an AI-powered clarity assistant that helps users turn confusion into actionable insights. Describe your situation, select a context, and get a concise report with reality, key variables, and suggested next steps.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+- **Contextual Analysis:** Career, Study, Personal, or Project.
+- **AI-Powered Insights:** Uses Cohere Chat API to generate actionable guidance.
+- **Clean & Interactive UI:** Built with React, TypeScript, and Tailwind CSS.
+- **Copy & Reset:** Easily copy reports and analyze multiple situations.
+- **Responsive Design:** Works seamlessly on desktop and mobile.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend:** React, TypeScript, Tailwind CSS, Lucide Icons
+- **Backend:** Node.js, Express
+- **AI Integration:** Cohere Chat API
+- **Other:** CORS, dotenv
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ⚡ Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js v18+
+- Cohere API Key
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone <your-repo-url>
+cd ClariFi
+Install dependencies:
+
+bash
+Copy code
+# Backend
+cd BackEnd
+npm install
+
+# Frontend
+cd ../FrontEnd
+npm install
+Create a .env file in BackEnd:
+
+env
+Copy code
+COHERE_API_KEY=your_api_key_here
+Run Backend & Frontend:
+
+bash
+Copy code
+# Backend
+cd BackEnd
+node server.js
+
+# Frontend
+cd ../FrontEnd
+npm run dev
 ```
+🖼️ Usage
+Open the app in the browser.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Describe your situation in the text area.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Select a context: Career, Study, Personal, Project.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Click Get Clarity.
+
+Copy your report or reset for another analysis.
+
+📦 Sample Output
+json
+Copy code
 ```
->>>>>>> bcb3c19 (Initial commit)
-"# ClariFi" 
+{
+  "reality": "You are overthinking your career path because of limited clarity on priorities.",
+  "variables": ["Current skills", "Available opportunities", "Personal interests"],
+  "nextStep": "Focus on one skill to improve, research opportunities, and make a small actionable plan."
+}
+```
+🔗 Links
+Cohere Chat API Docs: https://docs.cohere.com
+
+
+👨‍💻 Author
+Devindi Chathurika
+
